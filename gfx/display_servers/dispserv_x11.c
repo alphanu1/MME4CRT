@@ -118,11 +118,11 @@ static void x11_display_server_destroy(void *data)
       system(xrandr);
       snprintf(xrandr, sizeof(xrandr),
             "xrandr --delmode \"%s\" \"%s\"",
-            orig_output, old_mode);
+            orig_output, new_mode);
       system(xrandr);
       snprintf(xrandr, sizeof(xrandr),
             "xrandr --rmmode \"%s\"",
-            old_mode);
+            new_mode);
       system(xrandr);
    }
 #endif
@@ -253,26 +253,14 @@ static bool x11_display_server_set_resolution(void *data,
       pixel_clock = ((hmax * vmax * hz) / 1000000) / 2;
    /* above code is the modeline generator */
 
-   /* create interlaced newmode from modline variables */
-   if (height < 300)
-   {
-      snprintf(xrandr, sizeof(xrandr),
-            "xrandr --newmode \"%s_%dx%d_%0.2f\" %f %d %d %d %d %d %d %d %d -hsync -vsync",
-            crt_name, width, height, hz, pixel_clock, width, hfp, hsp, hbp, height, vfp, vsp, vbp);
-      system(xrandr);
-   }
-
-   /* create interlaced newmode from modline variables */
-   if (height > 300)
-   {
-      snprintf(xrandr, sizeof(xrandr),
-            "xrandr --newmode \"%s_%dx%d_%0.2f\" %f %d %d %d %d %d %d %d %d interlace -hsync -vsync",
-            crt_name, width, height, hz, pixel_clock, width, hfp, hsp, hbp, height, vfp, vsp, vbp);
-      system(xrandr);
-   }
-
    /* variable for new mode */
    snprintf(new_mode, sizeof(new_mode), "%s_%dx%d_%0.2f", crt_name, width, height, hz);
+   snprintf(xrandr, sizeof(xrandr),
+         "xrandr --newmode \"%s\" %f %d %d %d %d %d %d %d %d %s -hsync -vsync",
+         new_mode, pixel_clock, width, hfp, hsp, hbp, height, vfp, vsp, vbp,
+         height > 300 ? "interlace": ""
+   );
+   system(xrandr);
 
    /* need to run loops for DVI0 - DVI-2 and VGA0 - VGA-2 outputs to
     * add and delete modes */
@@ -311,14 +299,19 @@ static bool x11_display_server_set_resolution(void *data,
                   "xrandr --output \"%s\" --mode \"%s\"",
                   outputs->name, new_mode);
             system(xrandr);
-            snprintf(xrandr, sizeof(xrandr),
-                  "xrandr --delmode \"%s\" \"%s\"",
-                  outputs->name, old_mode);
-            system(xrandr);
-            snprintf(xrandr, sizeof(xrandr),
-                  "xrandr --rmmode \"%s\"",
-                  old_mode);
-            system(xrandr);
+
+            // delete old mode if exists
+            if (strnlen(old_mode, sizeof(old_mode)))
+            {
+               snprintf(xrandr, sizeof(xrandr),
+                     "xrandr --delmode \"%s\" \"%s\"",
+                     outputs->name, old_mode);
+               system(xrandr);
+               snprintf(xrandr, sizeof(xrandr),
+                     "xrandr --rmmode \"%s\"",
+                     old_mode);
+               system(xrandr);
+            }
          }
       }
    }
@@ -338,14 +331,19 @@ static bool x11_display_server_set_resolution(void *data,
                "xrandr --output \"%s\" --mode \"%s\"",
                outputs->name, new_mode);
          system(xrandr);
-         snprintf(xrandr, sizeof(xrandr),
-               "xrandr --delmode \"%s\" \"%s\"",
-               outputs->name, old_mode);
-         system(xrandr);
-         snprintf(xrandr, sizeof(xrandr),
-               "xrandr --rmmode \"%s\"",
-               old_mode);
-         system(xrandr);
+
+         // delete old mode if exists
+         if (strnlen(old_mode, sizeof(old_mode)))
+         {
+            snprintf(xrandr, sizeof(xrandr),
+                  "xrandr --delmode \"%s\" \"%s\"",
+                  outputs->name, old_mode);
+            system(xrandr);
+            snprintf(xrandr, sizeof(xrandr),
+                  "xrandr --rmmode \"%s\"",
+                  old_mode);
+            system(xrandr);
+         }
       }
    }
    return true;

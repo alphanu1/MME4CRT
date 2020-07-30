@@ -300,7 +300,7 @@ static bool x11_display_server_set_resolution(void *data,
                   outputs->name, new_mode);
             system(xrandr);
 
-            // delete old mode if exists
+            /* delete old mode, if set */
             if (strnlen(old_mode, sizeof(old_mode)))
             {
                snprintf(xrandr, sizeof(xrandr),
@@ -332,7 +332,7 @@ static bool x11_display_server_set_resolution(void *data,
                outputs->name, new_mode);
          system(xrandr);
 
-         // delete old mode if exists
+         /* delete old mode, if set */
          if (strnlen(old_mode, sizeof(old_mode)))
          {
             snprintf(xrandr, sizeof(xrandr),

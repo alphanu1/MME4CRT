@@ -3516,6 +3516,10 @@ bool video_driver_init_internal(bool *video_is_threaded, bool verbosity_enabled)
    tmp                               = input_state_get_ptr()->current_driver;
    /* Need to grab the "real" video driver interface on a reinit. */
    video_driver_find_driver(settings, "video driver", verbosity_enabled);
+   #if !defined(HAVE_CRTSWITCHRES)
+      if (video.fullscreen == fasle)
+         crt_destroy_modes(&video_st->crt_switch_st);
+   #endif
 
 #ifdef HAVE_THREADS
    video.is_threaded                 = VIDEO_DRIVER_IS_THREADED_INTERNAL(video_st);
@@ -4268,7 +4272,7 @@ void video_driver_frame(const void *data, unsigned width,
 
 #if defined(HAVE_CRTSWITCHRES)
    /* trigger set resolution*/
-   if (video_info.crt_switch_resolution)
+   if (video_info.crt_switch_resolution  && video_info.fullscreen == true)
    {
       unsigned native_width     = width;
       bool dynamic_super_width  = false;

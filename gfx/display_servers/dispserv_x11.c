@@ -93,6 +93,9 @@ static bool x11_display_server_set_resolution(void *data,
       unsigned width, unsigned height, int int_hz, float hz,
       int center, int monitor_index, int xoffset, int padjust)
 {
+   /* Commented out  - seems this is being called elsewhere and is a legacy mode switching function
+    * its has been replaced with SR2
+
    size_t _len;
    int m, screen;
    Window window;
@@ -134,10 +137,10 @@ static bool x11_display_server_set_resolution(void *data,
    screen                   = DefaultScreen(dpy);
    window                   = RootWindow(dpy, screen);
 
-   /* set core refresh from hz */
+
    video_monitor_set_refresh_rate(hz);
 
-   /* following code is the mode line generator */
+
    if (width < 700)
    {
       hfp      = (width * 1.033)+(padjust*2);
@@ -181,9 +184,9 @@ static bool x11_display_server_set_resolution(void *data,
    vfp            = height + ((vmax - height) / 2) - pdefault;
 
    if (height < 300)
-      vsp         = vfp + 3; /* needs to be 3 for progressive */
+      vsp         = vfp + 3; 
    if (height > 300)
-      vsp         = vfp + 6; /* needs to be 6 for interlaced */
+      vsp         = vfp + 6; 
 
    vbp            = vmax;
 
@@ -191,21 +194,18 @@ static bool x11_display_server_set_resolution(void *data,
       pixel_clock = (hmax * vmax * hz) ;
    if (height > 300)
       pixel_clock = (hmax * vmax * hz) / 2;
-   /* above code is the modeline generator */
 
-   /* Create interlaced new mode from modline variables */
    if (height < 300)
       crt_mode_flag = 10;
 
-   /* Create interlaced new mode from modline variables */
+
    if (height > 300)
       crt_mode_flag = 26;
    strlcpy(dispserv->old_mode, dispserv->new_mode, sizeof(dispserv->old_mode));
-   /* variable for new mode */
+
    strlcpy(dispserv->new_mode, dispserv->crt_name, sizeof(dispserv->new_mode));
 
-   /* Need to run loops for DVI0 - DVI-2 and VGA0 - VGA-2 outputs to
-    * add and delete modes */
+ 
 
    dispserv->crt_rrmode.name          = dispserv->new_mode;
    dispserv->crt_rrmode.nameLength    = _len;
@@ -218,7 +218,7 @@ static bool x11_display_server_set_resolution(void *data,
    dispserv->crt_rrmode.vSyncStart    = vfp;
    dispserv->crt_rrmode.vSyncEnd      = vsp;
    dispserv->crt_rrmode.vTotal        = vbp;
-   dispserv->crt_rrmode.modeFlags     = crt_mode_flag; /* 10 for -hsync -vsync. 26 for -hsync -vsync interlaced */
+   dispserv->crt_rrmode.modeFlags     = crt_mode_flag; 
    dispserv->crt_rrmode.hSkew         = 0;
 
    res                                = XRRGetScreenResources(dpy, window);
@@ -319,6 +319,7 @@ static bool x11_display_server_set_resolution(void *data,
    }
    XRRFreeScreenResources(resources);
    XCloseDisplay(dpy);
+   */
    return true;
 }
 

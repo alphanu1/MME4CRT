@@ -3508,7 +3508,6 @@ bool video_driver_init_internal(bool *video_is_threaded, bool verbosity_enabled)
       video_st->flags |=  VIDEO_FLAG_STARTED_FULLSCREEN;
    else
       video_st->flags &= ~VIDEO_FLAG_STARTED_FULLSCREEN;
-   
 
    /* Reset video frame count */
    video_st->frame_count             = 0;

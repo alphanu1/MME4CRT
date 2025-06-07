@@ -46,6 +46,8 @@ static void crt_adjust_sr_ini(videocrt_switch_t *p_switch);
 static bool ini_overrides_loaded = false;
 static char core_name[NAME_MAX_LENGTH]; /* Same size as library_name on retroarch_data.h */
 static char content_dir[DIR_MAX_LENGTH];
+static char _hSize[12];
+static char _hShift[12];
 
 #if defined(HAVE_VIDEOCORE) /* Need to add video core to SR2 */
 #include "include/userland/interface/vmcs_host/vc_vchi_gencmd.h"
@@ -304,6 +306,13 @@ static void switch_res_crt(
       char current_content_dir[DIR_MAX_LENGTH];
       double rr              = p_switch->ra_core_hz;
       const char *_core_name = (const char*)runloop_state_get_ptr()->system.info.library_name;
+      
+      const char* hSize = (const char*)_hSize;
+      const char* hShift = (const char*)_hShift;
+      
+      //sr_set_option(SR_OPT_H_SIZE, hSize);
+      sr_set_option(SR_OPT_H_SIZE, hSize);
+      sr_set_option(SR_OPT_H_SHIFT, hShift);
       /* Check for core and content changes in case we need
          to make any adjustments */
       if (string_is_empty(_core_name))
@@ -388,6 +397,8 @@ void crt_switch_res_core(
       int super_width, bool hires_menu,
       unsigned video_aspect_ratio_idx)
 {
+   
+
    if (height <= 4)
    {
       hz              = 60;
@@ -400,7 +411,7 @@ void crt_switch_res_core(
       {
          native_width = 320;
          height       = 240;
-      }
+      } 
       width           = native_width;
    }
 
@@ -425,7 +436,11 @@ void crt_switch_res_core(
 #if defined(HAVE_VIDEOCORE)
          crt_rpi_switch(p_switch, width, height, hz, 0, native_width);
 #else
-
+         
+         sprintf(_hSize, "%lf", 1+
+            ((float)crt_switch_porch_adjust/10.0));
+         sprintf(_hShift, "%d",
+            crt_switch_center_adjust);
          if (p_switch->hh_core)
          {
             int corrected_width  = 320;

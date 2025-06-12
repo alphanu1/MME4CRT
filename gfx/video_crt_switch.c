@@ -610,15 +610,15 @@ void crt_adjust_sr_ini(videocrt_switch_t *p_switch)
 }
 
 /* only used for RPi3 */
-//#if defined(HAVE_VIDEOCORE)
+#if defined(HAVE_VIDEOCORE)
 static void crt_rpi_switch(videocrt_switch_t *p_switch,
       int width, int height, float hz,
       int xoffset, int native_width, sr_mode* srm)
 {
    int w;
    char buffer[1024];
- //  VCHI_INSTANCE_T vchi_instance;
- //  VCHI_CONNECTION_T *vchi_connection  = NULL;
+   VCHI_INSTANCE_T vchi_instance;
+   VCHI_CONNECTION_T *vchi_connection  = NULL;
    static char output1[250]            = {0};
    static char output2[250]            = {0};
    static char set_hdmi[250]           = {0};
@@ -676,4 +676,4 @@ static void crt_rpi_switch(videocrt_switch_t *p_switch,
   // video_driver_reinit(DRIVER_VIDEO_MASK);
    RARCH_LOG("[CRT]: RPI-videocore: %s \n",set_hdmi_timing);
 }
-//#endif
+#endif

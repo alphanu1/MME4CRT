@@ -68,6 +68,25 @@ static bool crt_check_for_changes(videocrt_switch_t *p_switch)
    return false;
 }
 
+static int crt_compute_dynamic_width(videocrt_switch_t *p_switch)
+{
+   unsigned i;
+   unsigned dynamic_width   = 0;
+   unsigned p_clock         = 0;
+   unsigned min_height      = 261;
+
+   p_clock             = 32000000;
+
+   for (i = 1; i < 10; i++)
+   {
+      dynamic_width = p_switch->ra_core_height *i;
+      if ((dynamic_width * min_height * p_switch->ra_core_hz) > p_clock)
+         break;
+
+   }
+   return dynamic_width;
+}
+
 static void crt_store_temp_changes(videocrt_switch_t *p_switch)
 {
    p_switch->ra_tmp_height     = p_switch->ra_core_height;
@@ -468,6 +487,9 @@ void crt_switch_res_core(
       /* Detect resolution change and switch */
       if (crt_check_for_changes(p_switch))
       {
+         if (dynamic)
+            p_switch->ra_core_height = crt_compute_dynamic_width(p_switch);
+
          RARCH_LOG("[CRT]: Requested Resolution: %dx%d@%f orientation: %s\n",
                   native_width, height, hz, rotated? "rotated" : "normal");
 #if defined(HAVE_VIDEOCORE)

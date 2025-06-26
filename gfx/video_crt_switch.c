@@ -525,6 +525,15 @@ void crt_adjust_sr_ini(videocrt_switch_t *p_switch)
    char* rom_filename = s + n;
    char delimiter = (char)  path_get(RARCH_PATH_BASENAME)[0];
 
+   for( int i = 0; i < n; i++)
+   {
+      if (s[i] == '/' || s[i] =='\\')
+      {
+         delimiter = s[i];
+         break;
+      }
+   }
+
    while (0 < n && (s[--n] != delimiter ));
    if (s[n] == delimiter ) {
    rom_filename = s + n + 1;

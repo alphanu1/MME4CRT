@@ -515,32 +515,40 @@ void crt_switch_res_core(
    }
 }
 
+static char* get_game_name(char* full_path)
+{
+   int n = strlen(full_path);
+   char* rom_filename = full_path + n;
+   char delimiter = (char)  path_get(RARCH_PATH_BASENAME)[0];
+
+   for( int i = 0; i < n; i++)
+   {
+      if (full_path[i] == '/' || full_path[i] =='\\')
+      {
+         delimiter = full_path[i];
+         break; 
+      }
+   }
+
+   while (0 < n && (full_path[--n] != delimiter ));
+   if (full_path[n] == delimiter ) {
+   rom_filename = full_path + n + 1;
+
+   }
+   return rom_filename;
+
+}
+
 void crt_adjust_sr_ini(videocrt_switch_t *p_switch)
 {
    char config_directory[DIR_MAX_LENGTH];
    char switchres_ini_override_file[PATH_MAX_LENGTH];
 
-   char* s = (char*) path_get(RARCH_PATH_BASENAME);
-   int n = strlen(s);
-   char* rom_filename = s + n;
-   char delimiter = (char)  path_get(RARCH_PATH_BASENAME)[0];
+   char* rom_filename = get_game_name((char*) path_get(RARCH_PATH_BASENAME));
 
-   for( int i = 0; i < n; i++)
-   {
-      if (s[i] == '/' || s[i] =='\\')
-      {
-         delimiter = s[i];
-         break;
-      }
-   }
-
-   while (0 < n && (s[--n] != delimiter ));
-   if (s[n] == delimiter ) {
-   rom_filename = s + n + 1;
-
-   }
    strlcpy(content_name, rom_filename, sizeof(current_content_name));
-   RARCH_LOG("[CRT]: Game Info %s\n", rom_filename);
+
+   RARCH_LOG("[CRT]: Game Info %s\n", rom_filename); 
 
    if (p_switch->sr2_active)
    {
@@ -588,7 +596,7 @@ void crt_adjust_sr_ini(videocrt_switch_t *p_switch)
 
          /* Next up we load game overrides, if any */
          fill_pathname_join_special_ext(switchres_ini_override_file,
-               config_directory, core_name, rom_filename,
+               config_directory, core_name, content_name,
                ".switchres.ini", sizeof(switchres_ini_override_file));
 
          if (path_is_valid(switchres_ini_override_file))

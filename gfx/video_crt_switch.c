@@ -310,6 +310,8 @@ static void switch_res_crt(
       double rr              = p_switch->ra_core_hz;
       const char *_core_name = (const char*)runloop_state_get_ptr()->system.info.library_name;
       
+      
+
       const char* hSize = (const char*)_hSize;
       const char* hShift = (const char*)_hShift;
       const char* vShift = (const char*)_vShift;
@@ -514,6 +516,19 @@ void crt_adjust_sr_ini(videocrt_switch_t *p_switch)
    char config_directory[DIR_MAX_LENGTH];
    char switchres_ini_override_file[PATH_MAX_LENGTH];
 
+   char* s = (char*) path_get(RARCH_PATH_BASENAME);
+   int n = strlen(s);
+   char* rom_filename = s + n;
+   char delimiter = (char)  path_get(RARCH_PATH_BASENAME)[0];
+
+   while (0 < n && (s[--n] != delimiter ));
+   if (s[n] == delimiter ) {
+   rom_filename = s + n + 1;
+
+   }
+
+   RARCH_LOG("[CRT]: Game Info %s\n", rom_filename);
+
    if (p_switch->sr2_active)
    {
       /* First we reload the base switchres.ini file
@@ -534,6 +549,7 @@ void crt_adjust_sr_ini(videocrt_switch_t *p_switch)
          fill_pathname_application_special(config_directory,
                sizeof(config_directory),
                APPLICATION_SPECIAL_DIRECTORY_CONFIG);
+
          fill_pathname_join_special_ext(switchres_ini_override_file,
                config_directory, core_name, core_name,
                ".switchres.ini", sizeof(switchres_ini_override_file));
@@ -553,6 +569,18 @@ void crt_adjust_sr_ini(videocrt_switch_t *p_switch)
          if (path_is_valid(switchres_ini_override_file))
          {
             RARCH_LOG("[CRT]: Loading switchres.ini content directory override file from %s \n", switchres_ini_override_file);
+            sr_load_ini(switchres_ini_override_file);
+            ini_overrides_loaded = true;
+         }
+
+         /* Next up we load game overrides, if any */
+         fill_pathname_join_special_ext(switchres_ini_override_file,
+               config_directory, core_name, rom_filename,
+               ".switchres.ini", sizeof(switchres_ini_override_file));
+
+         if (path_is_valid(switchres_ini_override_file))
+         {
+            RARCH_LOG("[CRT]: Loading switchres.ini game override file from %s \n", switchres_ini_override_file);
             sr_load_ini(switchres_ini_override_file);
             ini_overrides_loaded = true;
          }
